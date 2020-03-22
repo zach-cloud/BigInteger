@@ -34,3 +34,9 @@ Feature: Test correctness of BigInteger
     And big integer 2 equal to 364
     When big integers are multiplied together
     Then math result should be "500749264652"
+
+  Scenario: Test division of big integers
+    Given big integer 1 equal to 2000000000
+    And big integer 2 equal to 100
+    When big integers are divided
+    Then math result should be "20000000"
