@@ -192,7 +192,8 @@ public class BigInteger {
 
     /**
      * Returns the String representation of this BigInteger.
-     * @return
+     *
+     * @return  String representation of this BigInteger.
      */
     @Override
     public String toString() {
