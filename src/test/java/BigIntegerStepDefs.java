@@ -35,9 +35,24 @@ public class BigIntegerStepDefs {
         mathResult = bigInt1.add(bigInt2);
     }
 
+    @When("big integers are subtracted")
+    public void big_integers_are_subtracted() {
+        mathResult = bigInt1.subtract(bigInt2);
+    }
+
     @When("big integers are multiplied together")
     public void big_integers_are_multiplied_together() {
         mathResult = bigInt1.multiply(bigInt2);
+    }
+
+    @When("big integers are divided")
+    public void big_integers_are_divided() {
+        mathResult = bigInt1.divide(bigInt2);
+    }
+
+    @When("big integers are exponentiated")
+    public void big_integers_are_exp() {
+        mathResult = bigInt1.power(bigInt2);
     }
 
     @Then("math result should be {string}")

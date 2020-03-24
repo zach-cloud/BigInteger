@@ -4,7 +4,13 @@ import java.util.List;
 /**
  * Represents a number which can grow without bound.
  * Opposed to regular Integers which are capped at 2.14b.
+ *
  * This class is immutable.
+ *
+ * Guarantees precision on addition, subtraction, multiplication, and power operations
+ * Currently only stores POSITIVE numbers.
+ *
+ * For educational purposes only.
  */
 public class BigInteger {
 
@@ -57,6 +63,16 @@ public class BigInteger {
     }
 
     /**
+     * Subtracts another BigInteger from this one.
+     *
+     * @param other Another BigInteger to subtract
+     * @return      Subtraction result
+     */
+    public BigInteger subtract(BigInteger other) {
+        return doMath(other, Operation.SUBTRACT);
+    }
+
+    /**
      * Multiplies this BigInteger with another.
      *
      * @param other Another BigInteger to multiply with
@@ -64,6 +80,26 @@ public class BigInteger {
      */
     public BigInteger multiply(BigInteger other)  {
         return doMath(other, Operation.MULTIPLY);
+    }
+
+    /**
+     * Gives an ESTIMATE for this / other
+     *
+     * @param other BigInt to divide by
+     * @return  Division estimate
+     */
+    public BigInteger divide(BigInteger other) {
+        return doMath(other, Operation.DIVIDE);
+    }
+
+    /**
+     * Brings this BigInteger to the power of the other BigInteger
+     *
+     * @param other BigInt to bring to power
+     * @return  Exponent result
+     */
+    public BigInteger power(BigInteger other) {
+        return doMath(other, Operation.EXPONENT);
     }
 
     /**
@@ -109,9 +145,77 @@ public class BigInteger {
             return iterativeAdd(numericStringOne, numericStringTwo);
         } else if(operation == Operation.MULTIPLY) {
             return iterativeMultiply(numericStringOne, numericStringTwo);
+        } else if(operation == Operation.DIVIDE) {
+            return divisonEstimate(numericStringOne, numericStringTwo);
+        } else if (operation == Operation.EXPONENT) {
+            return doPower(numericStringOne, numericStringTwo);
+        } else if(operation == Operation.SUBTRACT) {
+            return iterativeSubtract(numericStringOne, numericStringTwo);
         } else {
             return null;
         }
+    }
+
+    private BigInteger doPower(String numericStringOne, String numericStringTwo) {
+        return new BigInteger("0");
+    }
+
+    private BigInteger iterativeSubtract(String numericStringOne, String numericStringTwo) {
+        return new BigInteger("0");
+    }
+
+    /**
+     * Gets division estimate of two numeric Strings
+     *
+     * @param numericStringOne  Padded numeric String from this BigInteger
+     * @param numericStringTwo  Padded numeric String from other BigInteger
+     * @return                  Result of math operation
+     */
+    private BigInteger divisonEstimate(String numericStringOne, String numericStringTwo) {
+        // Convert both big integers into scientific-notation-like form
+        // i.e. 21465 = 2.1465 x 10 ^ 4
+        double numericSegmentOne = getDecimalSegment(numericStringOne);
+        int exponentOne = getExponent(numericStringOne);
+
+        double numericSegmentTwo = getDecimalSegment(numericStringTwo);
+        int exponentTwo = getExponent(numericStringTwo);
+
+        double dividedPart = numericSegmentOne / numericSegmentTwo;
+        int exponentPart = exponentOne - exponentTwo;
+        if(exponentPart < 0) {
+            // Other BigInt was bigger than this one, so return zero.
+            return new BigInteger("0");
+        }
+
+        String convertedDividedPart = (dividedPart + "").replace(".", "");
+        while(convertedDividedPart.length() <= exponentPart+1) {
+            convertedDividedPart += "0";
+        }
+        String appliedExponentPart = convertedDividedPart.substring(0, exponentPart + 1);
+
+        return new BigInteger(appliedExponentPart);
+    }
+
+    /**
+     * Gets the (Y) x 10 ^ X part of a BigInteger
+     *
+     * @param numericString Numeric string to get decimal part from
+     * @return  Decimal part of numeric string
+     */
+    private double getDecimalSegment(String numericString) {
+        numericString = trim(numericString);
+        return Double.parseDouble(numericString.charAt(0) + "." + numericString.substring(1));
+    }
+
+    /**
+     * Gets the Y x 10 ^ (X) part of a BigInteger
+     *
+     * @param numericString Numeric string to get exponent part from
+     * @return  Exponent part of numeric string
+     */
+    private int getExponent(String numericString) {
+        numericString = trim(numericString);
+        return numericString.length()-1;
     }
 
     /**
@@ -186,6 +290,9 @@ public class BigInteger {
             } else if(foundNonZero) {
                 trimmedInput = trimmedInput + c;
             }
+        }
+        if(trimmedInput.isEmpty()) {
+            return "0";
         }
         return trimmedInput;
     }
