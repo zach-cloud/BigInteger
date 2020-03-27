@@ -10,6 +10,7 @@ public class BigIntegerStepDefs {
     private String conversionResult;
     private BigInteger mathResult;
     private String numericString;
+    private BigInteger result;
 
     @Given("big integer 1 equal to {int}")
     public void big_integer1_equal_to(Integer value) {
@@ -151,5 +152,40 @@ public class BigIntegerStepDefs {
     @Then("the number should be greater than zero")
     public void theNumberShouldBeGreaterThanZero() {
         Assert.assertTrue(bigInt1.largerThanZero());
+    }
+
+    @Given("initial result {string}")
+    public void initialResult(String result) {
+        this.result = new BigInteger(result);
+    }
+
+    @When("result is divided by {string}")
+    public void resultIsDividedBy(String number) {
+        this.result = this.result.divide(new BigInteger(number));
+    }
+
+    @When("big integer is added to {string}")
+    public void bigIntegerIsAddedTo(String number) {
+        this.result = this.result.add(new BigInteger(number));
+    }
+
+    @When("big integer is multiplies by {string}")
+    public void bigIntegerIsMultipliesBy(String number) {
+        this.result = this.result.multiply(new BigInteger(number));
+    }
+
+    @When("big integer is subtracted by {int}")
+    public void bigIntegerIsSubtractedBy(int number) {
+        this.result = this.result.subtract(new BigInteger(number));
+    }
+
+    @When("big integer is brought to the power {string}")
+    public void bigIntegerIsBroughtToThePower(String number) {
+        this.result = this.result.power(new BigInteger(number));
+    }
+
+    @Then("result should be {string}")
+    public void resultShouldBe(String number) {
+        Assert.assertEquals(number, result.toString());
     }
 }

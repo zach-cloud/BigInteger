@@ -16,22 +16,11 @@ public class BigInteger {
     /**
      * Stores this BigInteger's number as a String.
      */
-    private String numericString;
+    private final String numericString;
     /**
      * True if negative. False if positive.
      */
     private boolean negative = false;
-
-    /**
-     * List of allowed operations on this BigInteger
-     */
-    private enum Operation {
-        ADD,
-        SUBTRACT,
-        MULTIPLY,
-        EXPONENT,
-        DIVIDE
-    }
 
     /**
      * Initializes a BigInteger with a value of zero.
@@ -71,7 +60,11 @@ public class BigInteger {
      * @return  -(this) as a BigInteger
      */
     public BigInteger makeNegative() {
-        return new BigInteger("-" + numericString);
+        if(!negative) {
+            return new BigInteger("-" + numericString);
+        } else {
+            return new BigInteger(numericString);
+        }
     }
 
     /**
@@ -81,16 +74,19 @@ public class BigInteger {
      * @return Addition result
      */
     public BigInteger add(BigInteger other) {
+        int maxLen = Math.max(numericString.length(), other.numericString.length());
+        String paddedNumericStringOne = pad(numericString, maxLen);
+        String paddedNumericStringTwo = pad(other.numericString, maxLen);
+
         if (!negative && !other.negative) {
-            return doMath(other, Operation.ADD);
+            return iterativeAdd(paddedNumericStringOne, paddedNumericStringTwo);
         } else if (!negative && other.negative) {
-            return doMath(other, Operation.SUBTRACT);
+            return iterativeSubtract(paddedNumericStringOne, paddedNumericStringTwo);
         } else if (negative && !other.negative) {
-            return doMath(other, Operation.SUBTRACT).makeNegative();
-        } else if (negative && other.negative) {
-            return doMath(other, Operation.ADD).makeNegative();
+            return iterativeSubtract(paddedNumericStringOne, paddedNumericStringTwo).makeNegative();
+        } else { // (negative && other.negative)
+            return iterativeAdd(paddedNumericStringOne, paddedNumericStringTwo).makeNegative();
         }
-        return null;
     }
 
     /**
@@ -100,12 +96,22 @@ public class BigInteger {
      * @return Subtraction result
      */
     public BigInteger subtract(BigInteger other) {
-        if (this.largerThan(other)) {
-            return doMath(other, Operation.SUBTRACT);
-        } else if (other.largerThan(this)) {
-            return other.doMath(this, Operation.SUBTRACT).makeNegative();
+        int maxLen = Math.max(numericString.length(), other.numericString.length());
+        String paddedNumericStringOne = pad(numericString, maxLen);
+        String paddedNumericStringTwo = pad(other.numericString, maxLen);
+
+        BigInteger thisForCompare = new BigInteger(paddedNumericStringOne);
+        BigInteger otherForCompare = new BigInteger(paddedNumericStringTwo);
+
+        if(this.negative && other.negative) {
+            return thisForCompare.subtract(otherForCompare).makeNegative();
+        } else if(this.negative && !other.negative) {
+            return thisForCompare.add(otherForCompare).makeNegative();
+        } else if(!this.negative && other.negative) {
+            return thisForCompare.add(otherForCompare);
+        } else {
+            return iterativeSubtract(paddedNumericStringOne, paddedNumericStringTwo);
         }
-        return new BigInteger("0");
     }
 
     /**
@@ -115,7 +121,11 @@ public class BigInteger {
      * @return Multiplication result
      */
     public BigInteger multiply(BigInteger other) {
-        BigInteger result = doMath(other, Operation.MULTIPLY);
+        int maxLen = Math.max(numericString.length(), other.numericString.length());
+        String paddedNumericStringOne = pad(numericString, maxLen);
+        String paddedNumericStringTwo = pad(other.numericString, maxLen);
+
+        BigInteger result = iterativeMultiply(paddedNumericStringOne,paddedNumericStringTwo);
         if(this.negative != other.negative ) {
             result = result.makeNegative();
         }
@@ -129,7 +139,7 @@ public class BigInteger {
      * @return Division estimate
      */
     public BigInteger divide(BigInteger other) {
-        BigInteger result = doMath(other, Operation.DIVIDE);
+        BigInteger result = divisonEstimate(numericString, other.numericString);
         if(this.negative != other.negative ) {
             result = result.makeNegative();
         }
@@ -147,7 +157,7 @@ public class BigInteger {
             return new BigInteger("1");
         }
         if(other.largerThanZero()) {
-            BigInteger result = doMath(other, Operation.EXPONENT);
+            BigInteger result = doPower(numericString, other.numericString);
             if(negative) {
                 if(!other.isEven()) {
                     result = result.makeNegative();
@@ -172,46 +182,6 @@ public class BigInteger {
             origin = "0" + origin;
         }
         return origin;
-    }
-
-    /**
-     * Performs the specified operation.
-     *
-     * @param other     Another BigInteger
-     * @param operation Math operation
-     * @return Result of math
-     */
-    private BigInteger doMath(BigInteger other, Operation operation) {
-        String otherNumericString = other.numericString;
-        int thisLength = numericString.length();
-        int otherLength = otherNumericString.length();
-        String thisNumericString = pad(numericString, Math.max(thisLength, otherLength));
-        otherNumericString = pad(otherNumericString, Math.max(thisLength, otherLength));
-        return performOperation(thisNumericString, otherNumericString, operation);
-    }
-
-    /**
-     * Performs an operation on two set up Strings
-     *
-     * @param numericStringOne Padded numeric String from this BigInteger
-     * @param numericStringTwo Padded numeric String from other BigInteger
-     * @param operation        Math operation
-     * @return Result of math operation
-     */
-    private BigInteger performOperation(String numericStringOne, String numericStringTwo, Operation operation) {
-        if (operation == Operation.ADD) {
-            return iterativeAdd(numericStringOne, numericStringTwo);
-        } else if (operation == Operation.MULTIPLY) {
-            return iterativeMultiply(numericStringOne, numericStringTwo);
-        } else if (operation == Operation.DIVIDE) {
-            return divisonEstimate(numericStringOne, numericStringTwo);
-        } else if (operation == Operation.EXPONENT) {
-            return doPower(numericStringOne, numericStringTwo);
-        } else if (operation == Operation.SUBTRACT) {
-            return iterativeSubtract(numericStringOne, numericStringTwo);
-        } else {
-            return null;
-        }
     }
 
     /**
@@ -240,6 +210,15 @@ public class BigInteger {
      * @return Result of subtraction
      */
     private BigInteger iterativeSubtract(String numericStringOne, String numericStringTwo) {
+        BigInteger thisForCompare = new BigInteger(numericStringOne);
+        BigInteger otherForCompare = new BigInteger(numericStringTwo);
+
+        if (otherForCompare.largerThan(thisForCompare)) {
+            return iterativeSubtract(numericStringTwo, numericStringOne).makeNegative();
+        } else if(thisForCompare.equals(otherForCompare)) { // this.equals(other)
+            return new BigInteger("0");
+        }
+
         String result = "";
         boolean carried = false;
         for (int i = numericStringOne.length() - 1; i >= 0; i--) {
@@ -462,6 +441,9 @@ public class BigInteger {
             int num2 = Integer.parseInt(numericStringTwo.charAt(i) + "");
             if(num1 > num2) {
                 return true;
+            }
+            if(num2 > num1) {
+                return false;
             }
         }
         return false;

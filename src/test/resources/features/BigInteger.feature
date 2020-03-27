@@ -1,6 +1,43 @@
 Feature: Test correctness of BigInteger
 
   #####################
+  # End-to-end
+  #####################
+
+  Scenario: End-to-end testing for big integer
+    Given initial result "159375"
+    When result is divided by "5"
+    Then result should be "31875"
+    When big integer is added to "-1000000"
+    Then result should be "-968125"
+    When big integer is added to "350000"
+    Then result should be "-618125"
+    When big integer is multiplies by "-2"
+    Then result should be "1236250"
+    When big integer is subtracted by -5000
+    Then result should be "1241250"
+    When result is divided by "-1"
+    Then result should be "-1241250"
+    When big integer is brought to the power "2"
+    Then result should be "1540701562500"
+    When big integer is brought to the power "-3"
+    Then result should be "0"
+    When big integer is subtracted by -500
+    Then result should be "500"
+    When big integer is subtracted by -500
+    Then result should be "1000"
+    When big integer is subtracted by 1000
+    Then result should be "0"
+    When big integer is brought to the power "100"
+    Then result should be "0"
+    When big integer is added to "-10"
+    Then result should be "-10"
+    When big integer is brought to the power "5"
+    Then result should be "-100000"
+    When big integer is brought to the power "4"
+    Then result should be "100000000000000000000"
+
+  #####################
   # Basic Functionality
   #####################
 
@@ -137,6 +174,20 @@ Feature: Test correctness of BigInteger
     Then big integer should be larger than other
 
   @PositiveTest
+  @LargerThan
+  Scenario: Test larger than works properly 5
+    Given big integer 1 equal to 2000
+    And big integer 2 equal to 1500
+    Then big integer should be larger than other
+
+  @PositiveTest
+  @LargerThan
+  Scenario: Test larger than works properly 5
+    Given big integer 1 equal to 1500
+    And big integer 2 equal to 2000
+    Then big integer should not be larger than other
+
+  @PositiveTest
   @SmallerThan
   Scenario: Test smaller than works properly
     Given big integer 1 equal to 5
@@ -155,6 +206,20 @@ Feature: Test correctness of BigInteger
   Scenario: Test smaller than works properly 3
     Given big integer 1 equal to 5
     And big integer 2 equal to 6
+    Then big integer should be smaller than other
+
+  @PositiveTest
+  @LargerThan
+  Scenario: Test larger than works properly 5
+    Given big integer 1 equal to 2000
+    And big integer 2 equal to 1500
+    Then big integer should not be smaller than other
+
+  @PositiveTest
+  @LargerThan
+  Scenario: Test larger than works properly 5
+    Given big integer 1 equal to 1500
+    And big integer 2 equal to 2000
     Then big integer should be smaller than other
 
   @PositiveTest
@@ -251,6 +316,14 @@ Feature: Test correctness of BigInteger
     When big integers are added together
     Then math result should be "-14000000"
 
+  @PositiveTest
+  @Addition
+  Scenario: Test addition of negative big integers 3
+    Given big integer 1 equal to -1500
+    And big integer 2 equal to 2000
+    When big integers are added together
+    Then math result should be "500"
+
   #####################
   # Subtraction
   #####################
@@ -278,6 +351,54 @@ Feature: Test correctness of BigInteger
     And big integer 2 equal to 1
     When big integers are subtracted
     Then math result should be "1999999999"
+
+  @PositiveTest
+  @Subtraction
+  Scenario: Test subtraction of big integers works for negatives
+    Given big integer 1 equal to 5000
+    And big integer 2 equal to -1000
+    When big integers are subtracted
+    Then math result should be "6000"
+
+  @PositiveTest
+  @Subtraction
+  Scenario: Test subtraction of big integers works for negatives 2
+    Given big integer 1 equal to -5000
+    And big integer 2 equal to 1000
+    When big integers are subtracted
+    Then math result should be "-6000"
+
+  @PositiveTest
+  @Subtraction
+  Scenario: Test subtraction of big integers works for negatives 3
+    Given big integer 1 equal to -5000
+    And big integer 2 equal to -1000
+    When big integers are subtracted
+    Then math result should be "-4000"
+
+  @PositiveTest
+  @Subtraction
+  Scenario: Test subtraction of big integers works for negatives 4
+    Given big integer 1 equal to -5000
+    And big integer 2 equal to -6000
+    When big integers are subtracted
+    Then math result should be "1000"
+
+  @PositiveTest
+  @Subtraction
+  Scenario: Test subtraction of big integers works for negatives 4
+    Given big integer 1 equal to 0
+    And big integer 2 equal to -600
+    When big integers are subtracted
+    Then math result should be "600"
+
+  @PositiveTest
+  @Subtraction
+  Scenario: Test subtraction of big integers works for negatives 4
+    Given big integer 1 equal to 0
+    And big integer 2 equal to 600
+    When big integers are subtracted
+    Then math result should be "-600"
 
   #####################
   # Multiplication
